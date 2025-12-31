@@ -4,6 +4,7 @@ import Home from "@/pages/Home";
 import ProductDetail from "@/pages/ProductDetail";
 import Reviews from "@/pages/Reviews";
 import Support from "@/pages/Support";
+import Login from "@/pages/Login";
 
 export default function App() {
   return (
@@ -15,6 +16,7 @@ export default function App() {
           <Route path="*" element={<Navigate to="/" replace />} />
           <Route path="/reviews" element={<Reviews />} />
           <Route path="/support" element={<Support />} />
+          <Route path="/login" element={<Login />} />
         </Route>
       </Routes>
     </div>

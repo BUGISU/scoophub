@@ -6,11 +6,10 @@ import { products as MOCK } from "@/data/products";
 
 export default function Home() {
   const { lang } = useOutletContext();
+  const navigate = useNavigate();
   const t = I18N[lang];
   const c = t.common;
   const f = t.filter;
-
-  const navigate = useNavigate();
 
   const [q, setQ] = useState("");
   const [flavor, setFlavor] = useState("ALL");
@@ -52,14 +51,6 @@ export default function Home() {
 
   return (
     <div className="container py-4">
-      {/* 헤더 */}
-      <h1 className="h4 mb-1">ScoopHub</h1>
-      <div className="text-secondary mb-3">
-        {lang === "ko"
-          ? "단백질 쉐이크 탐색 & 리뷰"
-          : "Protein shake explorer & reviews"}
-      </div>
-
       {/* 필터 카드 */}
       <div className="card mb-3 shadow-sm" style={{ minHeight: 180 }}>
         <div className="card-body">

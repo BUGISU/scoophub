@@ -1,9 +1,10 @@
 // client/src/components/AppNavbar.jsx
 import { I18N } from "@/assets/language/i18n";
-
+import { useNavigate } from "react-router-dom";
 const TAB_KEYS = ["home", "products", "reviews", "support"];
 
 export default function AppNavbar({ tab, setTab, lang, setLang }) {
+  const navigate = useNavigate();
   const t = I18N[lang].navbar;
 
   return (
@@ -58,6 +59,14 @@ export default function AppNavbar({ tab, setTab, lang, setLang }) {
           </div>
         </div>
       </div>
+      {/* 로그인 버튼 */}
+      <button
+        className="btn btn-outline-primary btn-sm text-nowrap"
+        type="button"
+        onClick={() => navigate("/login")}
+      >
+        {lang === "ko" ? "로그인" : "Login"}
+      </button>
       <div className="d-flex gap-2 align-items-center ms-auto">
         <div className="btn-group" role="group" aria-label="Language">
           <button
