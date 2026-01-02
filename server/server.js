@@ -9,6 +9,10 @@ const app = express();
 const PORT = process.env.PORT || 8080;
 const CLIENT_ORIGIN = process.env.CLIENT_ORIGIN || "http://localhost:5173";
 
+app.use("/api/company", require("./src/routes/company.products.routes"));
+app.use("/api/admin", require("./src/routes/admin.products.routes"));
+app.use("/api", require("./src/routes/public.products.routes"));
+
 // middleware
 app.use(
   cors({
