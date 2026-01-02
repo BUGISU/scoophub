@@ -1,12 +1,13 @@
 // client/src/components/AppNavbar.jsx
 import { I18N } from "@/assets/language/i18n";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/auth/useAuth";
 
 const TAB_KEYS = ["home", "products", "reviews", "support"];
 
 export default function AppNavbar({ tab, setTab, lang, setLang }) {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user, logout } = useAuth();
 
   const t = I18N[lang].navbar;
@@ -82,9 +83,18 @@ export default function AppNavbar({ tab, setTab, lang, setLang }) {
       ) : (
         <button
           className="btn btn-primary btn-sm"
-          onClick={() => navigate("/login")}
+          onClick={() => navigate("/login", { state: { from: location } })}
         >
           {lang === "ko" ? "로그인" : "Login"}
+        </button>
+      )}
+      {user && (
+        <button
+          type="button"
+          className="btn btn-outline-primary btn-sm"
+          onClick={() => navigate("/mypage")}
+        >
+          {lang === "ko" ? "마이페이지" : "My Page"}
         </button>
       )}
       <div className="d-flex gap-2 align-items-center ms-auto">

@@ -1,4 +1,4 @@
-import { useOutletContext, useNavigate } from "react-router-dom";
+import { useOutletContext, useNavigate, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/auth/useAuth";
 
@@ -6,28 +6,41 @@ export default function Login() {
   const { lang } = useOutletContext();
   const navigate = useNavigate();
   const { login, user } = useAuth();
+  const location = useLocation();
+  const from = location.state?.from?.pathname;
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [err, setErr] = useState("");
 
   useEffect(() => {
-    if (user) {
-      if (user.role === "admin") navigate("/admin", { replace: true });
-      else if (user.role === "company") navigate("/company", { replace: true });
-      else navigate("/", { replace: true });
+    if (!user) return;
+
+    if (from) {
+      navigate(from, { replace: true });
+      return;
     }
-  }, [user, navigate]);
+
+    // from이 없으면 role별 기본 목적지로
+    if (user.role === "admin") navigate("/admin", { replace: true });
+    else if (user.role === "company") navigate("/company", { replace: true });
+    else navigate("/mypage", { replace: true }); // 또는 "/"
+  }, [user, from, navigate]);
 
   async function onSubmit(e) {
     e.preventDefault();
     setErr("");
     try {
-      const user = await login(email, password);
-      //role 별 이동 처리 가능
-      if (user.role === "admin") navigate("/admin", { replace: true });
-      else if (user.role === "company") navigate("/company", { replace: true });
-      else navigate("/", { replace: true });
+      const u = await login(email, password);
+
+      if (from) {
+        navigate(from, { replace: true });
+        return;
+      }
+
+      if (u.role === "admin") navigate("/admin", { replace: true });
+      else if (u.role === "company") navigate("/company", { replace: true });
+      else navigate("/mypage", { replace: true }); // 또는 "/"
     } catch (e2) {
       setErr(
         lang === "ko"
