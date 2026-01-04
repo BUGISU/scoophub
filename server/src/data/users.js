@@ -16,7 +16,7 @@ const users = [
     email: "customer@scoophub.com",
     // password: customer1234
     passwordHash:
-      "$2a$10$Qn7Jm4mO4x7i0z6j3j9K4e0uAqzQdNnJ8mU2FQmJ0m1o2f0fP2l5y",
+      "$2b$10$coQlvi11/q5g1wSjykx/7OUTuNJXAEzNIOMzhLDGyNsc3cetGz1Da",
     role: "customer",
     name: "Customer",
   },
@@ -25,7 +25,7 @@ const users = [
     email: "company@scoophub.com",
     // password: company1234
     passwordHash:
-      "$2a$10$zv1p9n4fYt9j7x9YgqQ6ZeV6wq5nH1Z7mK2H1w0o1nq3J9L7jYt1C",
+      "$2b$10$xBR4dRsOpFobgUF7EBmy3uMDT3VV84wU82DnYZEkUdWuvqkxVVH26",
     role: "company",
     name: "Company",
   },

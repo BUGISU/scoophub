@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "@/auth/useAuth";
 import { apiGet } from "@/lib/api";
 
 function badgeClass(status) {
@@ -10,10 +9,8 @@ function badgeClass(status) {
   return "badge bg-secondary";
 }
 
-export default function CompanyMyPage() {
-  const { user } = useAuth();
+export default function CompanyMyProducts() {
   const navigate = useNavigate();
-
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState("");
@@ -38,14 +35,11 @@ export default function CompanyMyPage() {
   }, []);
 
   return (
-    <div className="container py-4" style={{ maxWidth: 960 }}>
+    <div>
       <div className="d-flex align-items-start justify-content-between gap-3 mb-3">
         <div>
-          <h1 className="h4 mb-1">회사 마이페이지</h1>
+          <h1 className="h4 mb-1">My Products</h1>
           <div className="text-secondary small">
-            {user?.email} ({user?.role})
-          </div>
-          <div className="text-secondary small mt-1">
             제품 등록 요청 시 상태는 <b>PENDING</b>이며, 관리자 승인 후{" "}
             <b>APPROVED</b>가 됩니다.
           </div>
@@ -59,11 +53,10 @@ export default function CompanyMyPage() {
           >
             새로고침
           </button>
-
           <button
             type="button"
             className="btn btn-primary"
-            onClick={() => navigate("/mypage/company/new-product")}
+            onClick={() => navigate("/mypage/my-products/new")}
           >
             제품 등록
           </button>
@@ -78,8 +71,6 @@ export default function CompanyMyPage() {
 
       <div className="card shadow-sm">
         <div className="card-body">
-          <div className="fw-semibold mb-2">내 제품 목록</div>
-
           {loading ? (
             <div className="text-secondary">로딩 중...</div>
           ) : items.length === 0 ? (
@@ -106,11 +97,6 @@ export default function CompanyMyPage() {
                           {p.brand || "-"} / {p.flavor || "-"} / {p.price ?? 0}
                           원
                         </div>
-                        {p.rejectReason && (
-                          <div className="text-danger small mt-1">
-                            반려 사유: {p.rejectReason}
-                          </div>
-                        )}
                       </td>
                       <td>
                         <span className={badgeClass(p.status)}>{p.status}</span>
@@ -121,14 +107,6 @@ export default function CompanyMyPage() {
               </table>
             </div>
           )}
-
-          <hr className="my-3" />
-
-          <div className="fw-semibold mb-2">준비할 기능</div>
-          <ul className="mb-0">
-            <li>내 제품 리뷰 모니터링</li>
-            <li>회사 정보 관리</li>
-          </ul>
         </div>
       </div>
     </div>

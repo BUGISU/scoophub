@@ -43,3 +43,19 @@ export async function apiGet(path, options = {}) {
   }
   return data;
 }
+export async function apiPatch(path, body, options = {}) {
+  const { useAuth = true } = options;
+
+  const res = await fetch(`${BASE}${path}`, {
+    method: "PATCH",
+    headers: buildHeaders({ "Content-Type": "application/json" }, useAuth),
+    body: JSON.stringify(body ?? {}),
+  });
+
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    const msg = data?.message || `API error ${res.status}`;
+    throw new Error(msg);
+  }
+  return data;
+}

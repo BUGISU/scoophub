@@ -9,17 +9,16 @@ const app = express();
 const PORT = process.env.PORT || 8080;
 const CLIENT_ORIGIN = process.env.CLIENT_ORIGIN || "http://localhost:5173";
 
-app.use("/api/company", require("./src/routes/company.products.routes"));
-app.use("/api/admin", require("./src/routes/admin.products.routes"));
-app.use("/api", require("./src/routes/public.products.routes"));
-
-// middleware
+// ✅ middleware 먼저!
 app.use(
   cors({
     origin: CLIENT_ORIGIN,
     credentials: true,
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
+app.options("*", cors({ origin: CLIENT_ORIGIN, credentials: true }));
 app.use(express.json());
 
 // routes
@@ -28,6 +27,9 @@ app.get("/api/health", (req, res) => {
 });
 
 app.use("/api/auth", require("./src/routes/auth.routes"));
+app.use("/api/company", require("./src/routes/company.products.routes"));
+app.use("/api/admin", require("./src/routes/admin.products.routes"));
+app.use("/api", require("./src/routes/public.products.routes"));
 
 // (테스트) 보호 API 예시
 const { requireAuth, requireRole } = require("./src/middlewares/auth");
