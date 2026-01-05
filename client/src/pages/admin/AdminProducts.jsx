@@ -1,31 +1,19 @@
 import { useEffect, useMemo, useState } from "react";
 import { apiGet, apiPatch } from "@/lib/api";
 
-function Badge({ status }) {
-  const cls =
-    status === "PENDING"
-      ? "badge text-bg-warning"
-      : status === "APPROVED"
-      ? "badge text-bg-success"
-      : status === "REJECTED"
-      ? "badge text-bg-danger"
-      : "badge text-bg-secondary";
-
-  return <span className={cls}>{status}</span>;
-}
-
 export default function AdminProducts() {
   const [items, setItems] = useState([]);
-  const [err, setErr] = useState("");
+  const [status, setStatus] = useState("PENDING"); // 기본: 승인 대기
   const [loading, setLoading] = useState(true);
-  const [busyId, setBusyId] = useState(null);
+  const [err, setErr] = useState("");
 
   async function load() {
-    setErr("");
     setLoading(true);
+    setErr("");
     try {
-      const data = await apiGet("/admin/products");
-      setItems(data.products ?? data.items ?? []);
+      const data = await apiGet("/admin/products"); // ✅ /api/admin/products
+      const products = data.products ?? [];
+      setItems(products);
     } catch (e) {
       setErr(e.message || "Failed to load");
     } finally {
@@ -37,39 +25,28 @@ export default function AdminProducts() {
     load();
   }, []);
 
-  const pendingCount = useMemo(
-    () => items.filter((x) => x.status === "PENDING").length,
-    [items]
-  );
+  const filtered = useMemo(() => {
+    if (!status) return items;
+    return items.filter((p) => (p.status ?? "PENDING") === status);
+  }, [items, status]);
 
   async function approve(id) {
-    setErr("");
-    setBusyId(id);
+    if (!confirm("이 제품을 승인할까요?")) return;
     try {
-      await apiPatch(`/admin/products/${id}/approve`);
-      // 낙관적 업데이트(선택) or 다시 불러오기
-      setItems((prev) =>
-        prev.map((p) => (p.id === id ? { ...p, status: "APPROVED" } : p))
-      );
+      await apiPatch(`/admin/products/${id}/approve`, {}); // ✅ PATCH
+      await load();
     } catch (e) {
-      setErr(e.message || "Approve failed");
-    } finally {
-      setBusyId(null);
+      alert("승인 실패: " + (e.message || ""));
     }
   }
 
   async function reject(id) {
-    setErr("");
-    setBusyId(id);
+    if (!confirm("이 제품을 거절할까요?")) return;
     try {
-      await apiPatch(`/admin/products/${id}/reject`);
-      setItems((prev) =>
-        prev.map((p) => (p.id === id ? { ...p, status: "REJECTED" } : p))
-      );
+      await apiPatch(`/admin/products/${id}/reject`, {});
+      await load();
     } catch (e) {
-      setErr(e.message || "Reject failed");
-    } finally {
-      setBusyId(null);
+      alert("거절 실패: " + (e.message || ""));
     }
   }
 
@@ -77,15 +54,28 @@ export default function AdminProducts() {
     <div className="container py-4" style={{ maxWidth: 1100 }}>
       <div className="d-flex align-items-center justify-content-between mb-3">
         <div>
-          <h1 className="h4 mb-1">Admin / Products</h1>
+          <h1 className="h4 mb-1">Products</h1>
           <div className="text-secondary small">
-            Pending: <b>{pendingCount}</b>
+            회사 등록 요청(PENDING)을 승인/거절합니다.
           </div>
         </div>
 
-        <button className="btn btn-outline-secondary" onClick={load}>
-          새로고침
-        </button>
+        <div className="d-flex gap-2">
+          <select
+            className="form-select"
+            style={{ width: 180 }}
+            value={status}
+            onChange={(e) => setStatus(e.target.value)}
+          >
+            <option value="PENDING">PENDING</option>
+            <option value="APPROVED">APPROVED</option>
+            <option value="REJECTED">REJECTED</option>
+          </select>
+
+          <button className="btn btn-outline-secondary" onClick={load}>
+            새로고침
+          </button>
+        </div>
       </div>
 
       {err && (
@@ -98,59 +88,59 @@ export default function AdminProducts() {
         <div className="card-body">
           {loading ? (
             <div className="text-secondary">Loading...</div>
-          ) : items.length === 0 ? (
-            <div className="text-secondary">등록된 제품이 없습니다.</div>
+          ) : filtered.length === 0 ? (
+            <div className="text-secondary">목록이 비어있습니다.</div>
           ) : (
             <div className="table-responsive">
-              <table className="table align-middle">
+              <table className="table align-middle mb-0">
                 <thead>
                   <tr>
                     <th style={{ width: 80 }}>ID</th>
                     <th>제품</th>
-                    <th style={{ width: 160 }}>상태</th>
-                    <th style={{ width: 220 }}>액션</th>
+                    <th style={{ width: 140 }}>회사</th>
+                    <th style={{ width: 120 }}>상태</th>
+                    <th style={{ width: 240 }}>액션</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {items.map((p) => (
+                  {filtered.map((p) => (
                     <tr key={p.id}>
                       <td>{p.id}</td>
                       <td>
                         <div className="fw-semibold">{p.name}</div>
                         <div className="text-secondary small">
-                          {p.flavor ?? "-"} / {p.price ?? 0}원
-                          {p.companyEmail ? ` · ${p.companyEmail}` : ""}
+                          {p.flavor ?? "-"} / {p.price ?? "-"}원
                         </div>
                       </td>
-                      <td>
-                        <Badge status={p.status} />
+                      <td className="text-secondary small">
+                        {p.companyEmail ?? p.ownerEmail ?? "-"}
                       </td>
                       <td>
-                        <div className="d-flex gap-2">
-                          <button
-                            className="btn btn-sm btn-success"
-                            disabled={p.status !== "PENDING" || busyId === p.id}
-                            onClick={() => approve(p.id)}
-                          >
-                            승인
-                          </button>
-                          <button
-                            className="btn btn-sm btn-danger"
-                            disabled={p.status !== "PENDING" || busyId === p.id}
-                            onClick={() => reject(p.id)}
-                          >
-                            거절
-                          </button>
-                          <button
-                            className="btn btn-sm btn-outline-secondary"
-                            onClick={() => alert(JSON.stringify(p, null, 2))}
-                          >
-                            상세
-                          </button>
-                        </div>
-                        {p.status !== "PENDING" && (
-                          <div className="text-secondary small mt-1">
-                            PENDING 상태에서만 승인/거절 가능합니다.
+                        <span className="badge text-bg-warning">
+                          {p.status ?? "PENDING"}
+                        </span>
+                      </td>
+                      <td>
+                        {p.status === "PENDING" ? (
+                          <div className="d-flex gap-2">
+                            <button
+                              className="btn btn-sm btn-success"
+                              onClick={() => approve(p.id)}
+                            >
+                              승인
+                            </button>
+                            <button
+                              className="btn btn-sm btn-outline-danger"
+                              onClick={() => reject(p.id)}
+                            >
+                              거절
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="text-secondary small">
+                            {p.status === "APPROVED"
+                              ? `승인일: ${p.approvedAt ?? "-"}`
+                              : `거절일: ${p.rejectedAt ?? "-"}`}
                           </div>
                         )}
                       </td>

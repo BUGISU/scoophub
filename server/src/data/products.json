@@ -1,12 +1,46 @@
 [
   {
-    "id": 1767525738872,
-    "companyEmail": "company@scoophub.com",
-    "name": "배너 50",
-    "flavor": "달달",
-    "price": 222222,
+    "id": 1,
+    "brand": "Acme",
+    "name": "Acme Anvil",
+    "flavor": "Heavy Duty",
+    "price": 32000,
+    "rating": 4.2,
+    "imageUrl": "https://example.com/images/acme-anvil.jpg",
+    "description": "A heavy-duty anvil perfect for all your cartoon needs.",
+    "ingredients": "원재료/성분 정보를 여기에 텍스트로 저장",
+    "nutrition": {
+      "calories": 500,
+      "proteinG": 21,
+      "fatG": 30,
+      "carbsG": 40,
+      "fiberG": 5,
+      "sugarG": 10,
+      "sodiumMg": 200,
+      "calciumPct": 15,
+      "ironPct": 10
+    },
     "status": "APPROVED",
-    "createdAt": "2026-01-04T11:22:18.872Z",
-    "approvedAt": "2026-01-04T11:39:16.179Z"
+    "companyEmail": "company@example.com",
+    "createdAt": "2026-01-05T00:00:00.000Z",
+    "approvedAt": "2026-01-05T00:10:00.000Z",
+    "rejectedAt": null
+  },
+  {
+    "id": 2,
+    "brand": "hle",
+    "name": "chocococo",
+    "flavor": "soure",
+    "price": 222222,
+    "imageUrl": "",
+    "description": "",
+    "ingredients": "",
+    "nutrition": {},
+    "status": "APPROVED",
+    "rating": 0,
+    "companyEmail": "company@scoophub.com",
+    "createdAt": "2026-01-05T09:56:23.784Z",
+    "approvedAt": "2026-01-05T09:56:46.467Z",
+    "rejectedAt": null
   }
 ]

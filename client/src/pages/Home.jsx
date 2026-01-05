@@ -1,5 +1,6 @@
 import { useOutletContext, useNavigate } from "react-router-dom";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
+import { apiGet } from "@/lib/api";
 import { I18N } from "@/assets/language/i18n";
 import ProductCard from "@/components/ProductCard";
 import { products as MOCK } from "@/data/products";
@@ -7,6 +8,9 @@ import { products as MOCK } from "@/data/products";
 export default function Home() {
   const { lang } = useOutletContext();
   const navigate = useNavigate();
+  const [items, setItems] = useState([]);
+  const [err, setErr] = useState("");
+
   const t = I18N[lang];
   const c = t.common;
   const f = t.filter;
@@ -15,21 +19,35 @@ export default function Home() {
   const [flavor, setFlavor] = useState("ALL");
   const [sort, setSort] = useState("RATING_DESC");
 
+  useEffect(() => {
+    (async () => {
+      try {
+        const data = await apiGet("/products", { useAuth: false });
+        setItems(data.products ?? []);
+      } catch (e) {
+        setErr(e.message || "Failed to load products");
+      }
+    })();
+  }, []);
+
   const flavors = useMemo(() => {
     const set = new Set(
-      MOCK.map((p) => p.flavor).filter((v) => typeof v === "string" && v.trim())
+      items
+        .map((p) => p.flavor)
+        .filter((v) => typeof v === "string" && v.trim())
     );
     return ["ALL", ...Array.from(set)];
-  }, []);
+  }, [items]);
 
   const filtered = useMemo(() => {
     const keyword = q.trim().toLowerCase();
 
-    const list = MOCK.filter((p) => {
+    const list = items.filter((p) => {
+      const brand = (p.brand ?? "").toLowerCase();
+      const name = (p.name ?? "").toLowerCase();
+
       const hitKeyword =
-        !keyword ||
-        p.brand.toLowerCase().includes(keyword) ||
-        p.name.toLowerCase().includes(keyword);
+        !keyword || brand.includes(keyword) || name.includes(keyword);
 
       const hitFlavor = flavor === "ALL" || p.flavor === flavor;
 
@@ -38,16 +56,13 @@ export default function Home() {
 
     const sorted = [...list];
 
-    if (sort === "RATING_DESC") {
+    if (sort === "RATING_DESC")
       sorted.sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0));
-    }
-
-    if (sort === "PRICE_ASC") {
+    if (sort === "PRICE_ASC")
       sorted.sort((a, b) => (a.price ?? 0) - (b.price ?? 0));
-    }
 
     return sorted;
-  }, [q, flavor, sort]);
+  }, [items, q, flavor, sort]);
 
   return (
     <div className="container py-4">
@@ -127,6 +142,7 @@ export default function Home() {
           </div>
         ))}
       </div>
+      {err && <div className="alert alert-danger">{err}</div>}
     </div>
   );
 }

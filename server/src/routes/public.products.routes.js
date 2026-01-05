@@ -1,12 +1,13 @@
 const express = require("express");
+const { loadProducts } = require("../data/products.store");
+
 const router = express.Router();
 
-const { products } = require("../data/products");
-
-// 공개 제품 목록 (APPROVED만)
+// 공개: 승인된 제품만 노출
 router.get("/products", (req, res) => {
-  const approved = products.filter((p) => p.status === "APPROVED");
-  res.json({ products: approved });
+  const products = loadProducts();
+  const published = products.filter((p) => p.status === "APPROVED");
+  res.json({ products: published });
 });
 
 module.exports = router;
